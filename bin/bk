@@ -1,0 +1,216 @@
+#!/usr/bin/perl
+#
+# Author: Duncan Ferguson, (c) 2011
+
+use strict;
+use warnings;
+
+use FindBin qw($Script);
+use File::Basename;
+
+use Getopt::Long qw(:config no_ignore_case bundling no_auto_abbrev);
+use Pod::Usage;
+use English 'no-match-vars';
+use POSIX qw(strftime);
+use File::Copy;
+
+my $VERSION = '0.01';
+
+my %options = (
+    'help|h|?'    => 0,
+    'man'         => 0,
+    'version|V'   => 0,
+    'debug:+'     => 0,
+    'directory|d' => 0,
+);
+
+GetOptions( \%options, keys(%options) ) || pod2usage( -verbose => 1 );
+
+die("Version: $VERSION\n") if ( $options{version} );
+pod2usage( -verbose => 1 ) if ( $options{'?'}  || $options{help} );
+pod2usage( -verbose => 2 ) if ( $options{HELP} || $options{man} );
+
+$options{debug} ||= 0;
+$options{debug} = 8 if ( $options{debug} > 8 );
+
+sub logmsg($@) {
+    my ( $level, @text ) = @_;
+    print @text, $/ if ( $level <= $options{debug} );
+}
+
+if ( !@ARGV ) {
+    pod2usage(
+        -message => 'No filenames provided.',
+        -verbose => 0,
+    );
+}
+
+my $date = strftime( '%Y%m%d', localtime() );
+my $time = strftime( '%H%M%S', localtime() );
+
+my $username = getpwuid($EUID);
+
+if ( $username eq 'root' ) {
+    logmsg( 2, 'Running as root so dropping username' );
+    $username = '';
+}
+
+foreach my $filename (@ARGV) {
+    my ( $basename, $dirname ) = fileparse($filename);
+
+    my $savedir = $dirname;
+
+    logmsg( 2, "dirname=$dirname" );
+    logmsg( 2, "basename=$basename" );
+
+    if ( !-f $filename ) {
+        warn "WARNING: File $filename not found", $/;
+        next;
+    }
+
+    if ( !$savedir ) {
+        warn "WARNING: $savedir does not exist", $/;
+        next;
+    }
+
+    # get last backup and compare to current file to prevent
+    # unnecessary backups being created
+    opendir( my $savedir_fh, $savedir )
+        || die( "Unable to read $savedir: $!", $/ );
+    my @save_files = sort
+        grep( /$basename\.(?:$username\.)?\d{8}/, readdir($savedir_fh) );
+    closedir($savedir_fh) || die( "Unable to close $savedir: $!", $/ );
+
+    if ( $options{debug} > 2 ) {
+        logmsg( 3, "Previous backups found:" );
+        foreach my $bk (@save_files) {
+            logmsg( 3, "\t$bk" );
+        }
+    }
+
+    # compare the last file found with the current file
+    my $last_backup = $save_files[-1];
+    if ($last_backup) {
+        logmsg( 1, "Found last backup as: $last_backup" );
+
+        my $last_backup_sum = qx/sum $last_backup/;
+        chomp($last_backup_sum);
+        my $current_sum = qx/sum $filename/;
+        chomp($current_sum);
+
+        logmsg( 2, "Last backup file sum: $last_backup_sum" );
+        logmsg( 2, "Current file sum: $current_sum" );
+
+        if ( $last_backup_sum eq $current_sum ) {
+            logmsg( 0, "No change since last backup of $filename" );
+            next;
+        }
+    }
+
+    my $savefilename = "$savedir$basename";
+    $savefilename .= ".$username" if ($username);
+    $savefilename .= ".$date";
+
+    if ( -f $savefilename ) {
+        $savefilename .= ".$time";
+    }
+
+    logmsg( 1, "Backing up to $savefilename" );
+
+    if ( system("cp $filename $savefilename") != 0 ) {
+        warn "Failed to back up $filename", $/;
+        next;
+    }
+
+    logmsg( 0, "Backed up $filename to $savefilename" );
+}
+
+exit 0;
+
+__END__
+
+=head1 NAME
+
+bk
+
+=head1 SYNOPSIS
+
+  bk [-?hV]
+  bk [filename] [...]
+
+=head1 DESCRIPTION
+
+Command to ease backing up a file before editting.  If a previously backed
+up file exists and has matching checksum a new backup is not made.  Backed up
+files have date/time appended as necessary.
+
+Backups are stored relative to file being backed up.
+
+=head1 OPTIONS
+
+=over
+
+=item --help, -?, -h
+
+Display basic help 
+
+=item --man
+
+Display man page
+
+=item --debug [0-9], --debug [--debug [...]]
+
+Enable debugging mode (using more than once increases verbosity, or specify
+a level explicitly to a maximum of level 8) 
+
+=item --version, -V
+
+Show version information
+
+=back
+
+=head1 ARGUMENTS
+
+=over
+
+=item <filename>
+
+filename to be backed up.  Multiple filenames can be provided.
+
+=back
+
+=head1 NOTES
+
+None.
+
+=head1 FILES
+
+None
+
+=head1 AUTHOR AND COPYRIGHT
+
+Copyright (C) 2011 Duncan Ferguson.  All rights reserved.
+
+This is free software; you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation; either version 2 of the License, or
+(at your option) any later version.
+
+This software is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with Opsview; if not, write to the Free Software
+Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+
+=head1 KNOWN BUGS
+
+None known at this time.
+
+=head1 SEE ALSO
+
+L<perl>
+
+=cut
