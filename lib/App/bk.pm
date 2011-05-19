@@ -3,9 +3,23 @@ package App::bk;
 use warnings;
 use strict;
 
+use Getopt::Long qw(:config no_ignore_case bundling no_auto_abbrev);
+use Pod::Usage;
+use English 'no-match-vars';
+use POSIX qw(strftime);
+use File::Basename;
+use File::Copy;
+
 =head1 NAME
 
-App::bk - The great new App::bk!
+Module backend for the 'bk' commaned.  Please see its documentation for 
+command line usage using one of the following commands:
+
+  bk -h
+  bk -H
+  bk --man
+  man bk
+  perldoc bk
 
 =head1 VERSION
 
@@ -15,37 +29,144 @@ Version 0.01
 
 our $VERSION = '0.01';
 
+my %options = (
+    'help|h|?'    => 0,
+    'man'         => 0,
+    'version|V'   => 0,
+    'debug:+'     => 0,
+    'directory|d' => 0,
+);
 
 =head1 SYNOPSIS
 
-Quick summary of what the module does.
+Backend for bk command - does the actualy work.  'bk' is just a very light
+interface into this module, where the real work is done.
 
-Perhaps a little code snippet.
 
     use App::bk;
 
-    my $foo = App::bk->new();
-    ...
-
-=head1 EXPORT
-
-A list of functions that can be exported.  You can delete this section
-if you don't export anything, such as for a purely object-oriented module.
+    my $foo = App::bk->backup_files();
 
 =head1 SUBROUTINES/METHODS
 
-=head2 function1
+=head2 backup_files
+
+Main function to process ARGV and backup files as necessary
 
 =cut
 
-sub function1 {
+sub backup_files {
+
+    # make sure we don't clobber any callers variables
+
+    local @ARGV = @ARGV;
+    GetOptions( \%options, keys(%options) ) || pod2usage( -verbose => 1 );
+
+    die("Version: $VERSION\n") if ( $options{version} );
+    pod2usage( -verbose => 1 ) if ( $options{'?'}  || $options{help} );
+    pod2usage( -verbose => 2 ) if ( $options{HELP} || $options{man} );
+
+    $options{debug} ||= 0;
+    $options{debug} = 8 if ( $options{debug} > 8 );
+
+    if ( !@ARGV ) {
+        pod2usage(
+            -message => 'No filenames provided.',
+            -verbose => 0,
+        );
+    }
+
+    my $date = strftime( '%Y%m%d', localtime() );
+    my $time = strftime( '%H%M%S', localtime() );
+
+    my $username = getpwuid($EUID);
+
+    if ( $username eq 'root' ) {
+        logmsg( 2, 'Running as root so dropping username' );
+        $username = '';
+    }
+
+    foreach my $filename (@ARGV) {
+        my ( $basename, $dirname ) = fileparse($filename);
+
+        my $savedir = $dirname;
+
+        logmsg( 2, "dirname=$dirname" );
+        logmsg( 2, "basename=$basename" );
+
+        if ( !-f $filename ) {
+            warn "WARNING: File $filename not found", $/;
+            next;
+        }
+
+        if ( !$savedir ) {
+            warn "WARNING: $savedir does not exist", $/;
+            next;
+        }
+
+        # get last backup and compare to current file to prevent
+        # unnecessary backups being created
+        opendir( my $savedir_fh, $savedir )
+            || die( "Unable to read $savedir: $!", $/ );
+        my @save_files = sort
+            grep( /$basename\.(?:$username\.)?\d{8}/, readdir($savedir_fh) );
+        closedir($savedir_fh) || die( "Unable to close $savedir: $!", $/ );
+
+        if ( $options{debug} > 2 ) {
+            logmsg( 3, "Previous backups found:" );
+            foreach my $bk (@save_files) {
+                logmsg( 3, "\t$bk" );
+            }
+        }
+
+        # compare the last file found with the current file
+        my $last_backup = $save_files[-1];
+        if ($last_backup) {
+            logmsg( 1, "Found last backup as: $last_backup" );
+
+            my $last_backup_sum = qx/sum $last_backup/;
+            chomp($last_backup_sum);
+            my $current_sum = qx/sum $filename/;
+            chomp($current_sum);
+
+            logmsg( 2, "Last backup file sum: $last_backup_sum" );
+            logmsg( 2, "Current file sum: $current_sum" );
+
+            if ( $last_backup_sum eq $current_sum ) {
+                logmsg( 0, "No change since last backup of $filename" );
+                next;
+            }
+        }
+
+        my $savefilename = "$savedir$basename";
+        $savefilename .= ".$username" if ($username);
+        $savefilename .= ".$date";
+        if ( -f $savefilename ) {
+            $savefilename .= ".$time";
+        }
+
+        logmsg( 1, "Backing up to $savefilename" );
+
+        if ( system("cp $filename $savefilename") != 0 ) {
+            warn "Failed to back up $filename", $/;
+            next;
+        }
+
+        logmsg( 0, "Backed up $filename to $savefilename" );
+    }
+
+    return 1;
 }
 
-=head2 function2
+=head2 logmsg($level, @message);
+
+Output @message if $level is equal or less than $options{debug}
 
 =cut
 
-sub function2 {
+sub logmsg {
+    my ( $level, @text ) = @_;
+    print @text, $/ if ( $level <= $options{debug} );
 }
 
 =head1 AUTHOR
@@ -54,12 +175,10 @@ Duncan Ferguson, C<< <duncan_j_ferguson at yahoo.co.uk> >>
 
 =head1 BUGS
 
-Please report any bugs or feature requests to C<bug-app-bk at rt.cpan.org>, or through
-the web interface at L<http://rt.cpan.org/NoAuth/ReportBug.html?Queue=App-bk>.  I will be notified, and then you'll
-automatically be notified of progress on your bug as I make changes.
-
-
-
+Please report any bugs or feature requests via the web interface at 
+L<https://github.com/duncs/perl-app-bk/issues>/  
+I will be notified, and then you'll automatically be notified of 
+progress on your bug as I make changes.
 
 =head1 SUPPORT
 
@@ -72,9 +191,9 @@ You can also look for information at:
 
 =over 4
 
-=item * RT: CPAN's request tracker
+=item * HitHUB: request tracker
 
-L<http://rt.cpan.org/NoAuth/Bugs.html?Dist=App-bk>
+L<https://github.com/duncs/perl-app-bk/issues>
 
 =item * AnnoCPAN: Annotated CPAN documentation
 
@@ -107,4 +226,4 @@ See http://dev.perl.org/licenses/ for more information.
 
 =cut
 
-1; # End of App::bk
+1;    # End of App::bk
