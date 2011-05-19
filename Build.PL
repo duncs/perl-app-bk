@@ -23,6 +23,7 @@ my $builder = Module::Build->new(
         'English'        => 0,
         'POSIX'          => 0,
         'File::Copy'     => 0,
+        'Test::Trap'     => 0,
     },
     add_to_cleanup     => ['App-bk-*'],
     create_makefile_pl => 'traditional',
