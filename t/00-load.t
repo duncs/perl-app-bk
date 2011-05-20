@@ -7,4 +7,4 @@ BEGIN {
 ";
 }
 
-diag( "Testing App::bk $App::bk::VERSION, Perl $], $^X" );
+note( "Testing App::bk $App::bk::VERSION, Perl $], $^X" );
