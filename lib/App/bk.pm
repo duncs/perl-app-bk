@@ -9,6 +9,7 @@ use English 'no-match-vars';
 use POSIX qw(strftime);
 use File::Basename;
 use File::Copy;
+use File::Which qw(which);
 
 =head1 NAME
 
@@ -86,6 +87,9 @@ sub backup_files {
         $username = '';
     }
 
+    my $sum = find_binary();
+    logmsg(2, "Using $sum");
+
     foreach my $filename (@ARGV) {
         my ( $basename, $dirname ) = fileparse($filename);
 
@@ -124,13 +128,13 @@ sub backup_files {
         if ($last_backup) {
             logmsg( 1, "Found last backup as: $last_backup" );
 
-            my $last_backup_sum = qx/sum $last_backup/;
+            my $last_backup_sum = qx/$sum $last_backup/;
             chomp($last_backup_sum);
-            my $current_sum = qx/sum $filename/;
+            my $current_sum = qx/$sum $filename/;
             chomp($current_sum);
 
-            logmsg( 2, "Last backup file sum: $last_backup_sum" );
-            logmsg( 2, "Current file sum: $current_sum" );
+            logmsg( 2, "Last backup file $sum: $last_backup_sum" );
+            logmsg( 2, "Current file $sum: $current_sum" );
 
             if ( $last_backup_sum eq $current_sum ) {
                 logmsg( 0, "No change since last backup of $filename" );
@@ -167,6 +171,16 @@ Output @message if $level is equal or less than $options{debug}
 sub logmsg {
     my ( $level, @text ) = @_;
     print @text, $/ if ( $level <= $options{debug} );
+}
+
+=head2 $binary = find_sum();
+
+Locate a binary to use to calculate a file checksum.  Looks first for md5sum, then sum.  Dies on failure to find either.
+
+=cut
+
+sub find_sum {
+    return which ('md5sum') || which ('sum') || die 'Unable to locate "md5sum" or "sum"', $/;
 }
 
 =head1 AUTHOR
