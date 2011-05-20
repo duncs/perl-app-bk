@@ -88,11 +88,12 @@ sub backup_files {
     }
 
     my $sum = find_binary();
-    logmsg(2, "Using $sum");
+    logmsg( 2, "Using $sum" );
 
     foreach my $filename (@ARGV) {
         my ( $basename, $dirname ) = fileparse($filename);
 
+        # do this as we might mvoe this into archive or save dir in future
         my $savedir = $dirname;
 
         logmsg( 2, "dirname=$dirname" );
@@ -180,7 +181,10 @@ Locate a binary to use to calculate a file checksum.  Looks first for md5sum, th
 =cut
 
 sub find_sum {
-    return which ('md5sum') || which ('sum') || die 'Unable to locate "md5sum" or "sum"', $/;
+    return
+           which('md5sum')
+        || which('sum')
+        || die 'Unable to locate "md5sum" or "sum"', $/;
 }
 
 =head1 AUTHOR
