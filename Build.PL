@@ -14,6 +14,7 @@ my $builder = Module::Build->new(
     license           => 'perl',
     dist_author       => q{Duncan Ferguson <duncan_j_ferguson@yahoo.co.uk>},
     dist_version_from => 'lib/App/bk.pm',
+    dist_abstract     => 'lib/App/bk.pm',
     build_requires    => {
         'FindBin'        => 0,
         'Test::More'     => 0.94,
@@ -23,7 +24,7 @@ my $builder = Module::Build->new(
         'English'        => 0,
         'POSIX'          => 0,
         'File::Copy'     => 0,
-        'Test::Trap'     => 0.2,
+        'Test::Trap'     => '0.2.0',
     },
     add_to_cleanup     => ['App-bk-*'],
     create_makefile_pl => 'traditional',
