@@ -30,13 +30,14 @@ Version 0.01
 
 our $VERSION = '0.01';
 
-my %options = (
+my %opts = (
     'help|h|?'    => 0,
     'man'         => 0,
     'version|V'   => 0,
     'debug:+'     => 0,
     'directory|d' => 0,
 );
+my %options;
 
 =head1 SYNOPSIS
 
@@ -61,7 +62,7 @@ sub backup_files {
     # make sure we don't clobber any callers variables
 
     local @ARGV = @ARGV;
-    GetOptions( \%options, keys(%options) ) || pod2usage( -verbose => 1 );
+    GetOptions( \%options, keys(%opts) ) || pod2usage( -verbose => 1 );
 
     die("Version: $VERSION\n") if ( $options{version} );
     pod2usage( -verbose => 1 ) if ( $options{'?'}  || $options{help} );
