@@ -87,7 +87,7 @@ sub backup_files {
         $username = '';
     }
 
-    my $sum = find_binary();
+    my $sum = find_sum();
     logmsg( 2, "Using $sum" );
 
     foreach my $filename (@ARGV) {
