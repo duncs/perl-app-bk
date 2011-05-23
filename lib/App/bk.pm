@@ -88,7 +88,7 @@ sub backup_files {
         $username = '';
     }
 
-    my $sum = find_sum();
+    my $sum = find_sum_binary();
     logmsg( 2, "Using $sum" );
 
     foreach my $filename (@ARGV) {
@@ -175,13 +175,13 @@ sub logmsg {
     print @text, $/ if ( $level <= $options{debug} );
 }
 
-=head2 $binary = find_sum();
+=head2 $binary = find_sum_binary();
 
 Locate a binary to use to calculate a file checksum.  Looks first for md5sum, then sum.  Dies on failure to find either.
 
 =cut
 
-sub find_sum {
+sub find_sum_binary {
     return
            which('md5sum')
         || which('sum')

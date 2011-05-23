@@ -12,7 +12,7 @@ use_ok("App::bk");
 
 local @ARGV = ();
 
-$result = trap { App::bk::find_sum(); };
+$result = trap { App::bk::find_sum_binary(); };
 is( $trap->stderr, '', 'no stderr output' );
 is( $trap->stdout, '', 'no stdout output' );
 is( $trap->exit, undef, 'correct exit' );
@@ -21,7 +21,7 @@ is( $trap->die, undef, 'no death output' );
 is( $result, which('md5sum') || which('sum'), 'got correct path: ' . $result );
 
 local $ENV{PATH} = '';
-$result = trap { App::bk::find_sum(); };
+$result = trap { App::bk::find_sum_binary(); };
 is( $trap->stderr, '', 'no stderr output' );
 is( $trap->stdout, '', 'no stdout output' );
 is( $trap->exit, undef, 'correct exit' );
