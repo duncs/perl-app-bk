@@ -5,6 +5,7 @@ use warnings;
 use Test::More;
 use Test::Trap;
 use FindBin qw($Bin);
+use File::Copy;
 
 my $result;
 
@@ -43,6 +44,23 @@ is( $trap->exit,    undef,    'correct exit' );
 is( $trap->leaveby, 'return', 'returned correctly' );
 is( $trap->die,     undef,    'no death output' );
 is( $result,        1,        'got correct return value' );
+
+$result = trap { App::bk::backup_files(); };
+
+is( $trap->stderr, '', 'no stderr output' );
+like(
+    $trap->stdout,
+    qr!No change since last backup of file1.txt$!,
+    'correctly got no change'
+);
+is( $trap->exit,    undef,    'correct exit' );
+is( $trap->leaveby, 'return', 'returned correctly' );
+is( $trap->die,     undef,    'no death output' );
+is( $result,        1,        'got correct return value' );
+
+my $last_backup_file = App::bk::get_last_backup($Bin, 'file1.txt');
+note('Amending file ', $last_backup_file);
+copy('file2.txt', $last_backup_file);
 
 $result = trap { App::bk::backup_files(); };
 

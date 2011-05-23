@@ -10,6 +10,7 @@ use POSIX qw(strftime);
 use File::Basename;
 use File::Copy;
 use File::Which qw(which);
+use Carp;
 
 =head1 NAME
 
@@ -38,7 +39,16 @@ my %opts = (
     'directory|d' => 0,
 );
 my %options;
+
+# 'tidier' way to store global variables
+# probably shouldnt do it like this - will rework later
 $options{debug} ||= 0;
+$options{username} = getpwuid($EUID);
+
+if ( $options{username} eq 'root' ) {
+    logmsg( 2, 'Running as root so dropping username from file backups' );
+    $options{username} = '';
+}
 
 =head1 SYNOPSIS
 
@@ -82,13 +92,6 @@ sub backup_files {
     my $date = strftime( '%Y%m%d', localtime() );
     my $time = strftime( '%H%M%S', localtime() );
 
-    my $username = getpwuid($EUID);
-
-    if ( $username eq 'root' ) {
-        logmsg( 2, 'Running as root so dropping username' );
-        $username = '';
-    }
-
     foreach my $filename (@ARGV) {
         my ( $basename, $dirname ) = fileparse($filename);
 
@@ -108,23 +111,8 @@ sub backup_files {
             next;
         }
 
-        # get last backup and compare to current file to prevent
-        # unnecessary backups being created
-        opendir( my $savedir_fh, $savedir )
-            || die( "Unable to read $savedir: $!", $/ );
-        my @save_files = sort
-            grep( /$basename\.(?:$username\.)?\d{8}/, readdir($savedir_fh) );
-        closedir($savedir_fh) || die( "Unable to close $savedir: $!", $/ );
-
-        if ( $options{debug} > 2 ) {
-            logmsg( 3, "Previous backups found:" );
-            foreach my $bk (@save_files) {
-                logmsg( 3, "\t$bk" );
-            }
-        }
-
         # compare the last file found with the current file
-        my $last_backup = $save_files[-1];
+        my $last_backup = get_last_backup( $savedir, $basename );
         if ($last_backup) {
             logmsg( 1, "Found last backup as: $last_backup" );
 
@@ -141,7 +129,7 @@ sub backup_files {
         }
 
         my $savefilename = "$savedir$basename";
-        $savefilename .= ".$username" if ($username);
+        $savefilename .= ".$options{username}" if ( $options{username} );
         $savefilename .= ".$date";
         if ( -f $savefilename ) {
             $savefilename .= ".$time";
@@ -193,7 +181,7 @@ Get the chksum of a file
 sub get_chksum {
     my ($filename) = @_;
 
-    die 'No filename provided', $/ if ( !$filename );
+    croak 'No filename provided' if ( !$filename );
 
     if ( !$options{sum} ) {
         $options{sum} = find_sum_binary();
@@ -205,6 +193,38 @@ sub get_chksum {
 
     ($chksum) = $chksum =~ m/^(\w+)\s/;
     return $chksum;
+}
+
+=head2 $filename = get_last_backup($file);
+
+Get the last backup filename for given file
+
+=cut
+
+sub get_last_backup {
+    my ( $savedir, $filename ) = @_;
+
+    if ( !$savedir || !-d $savedir ) {
+        croak 'Invalid save directory provided';
+    }
+
+    # get last backup and compare to current file to prevent
+    # unnecessary backups being created
+    opendir( my $savedir_fh, $savedir )
+        || die( "Unable to read $savedir: $!", $/ );
+    my @save_files = sort
+        grep( /$filename\.(?:$options{username}\.)?\d{8}/,
+        readdir($savedir_fh) );
+    closedir($savedir_fh) || die( "Unable to close $savedir: $!", $/ );
+
+    if ( $options{debug} > 2 ) {
+        logmsg( 3, "Previous backups found:" );
+        foreach my $bk (@save_files) {
+            logmsg( 3, "\t$bk" );
+        }
+    }
+
+    return $save_files[-1];
 }
 
 =head1 AUTHOR
