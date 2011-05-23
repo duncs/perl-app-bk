@@ -9,7 +9,7 @@ t/00-load.t
 t/boilerplate.t
 t/file1.txt
 t/file2.txt
-t/find_sum.t
+t/find_sum_binary.t
 t/manifest.t
 t/multi_files.t
 t/no_files.t
