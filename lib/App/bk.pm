@@ -137,6 +137,7 @@ sub backup_files {
 
         logmsg( 1, "Backing up to $savefilename" );
 
+        # use OS cp to preserve ownership/permissions/etc
         if ( system("cp $filename $savefilename") != 0 ) {
             warn "Failed to back up $filename", $/;
             next;
