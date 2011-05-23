@@ -16,3 +16,5 @@ t/no_files.t
 t/one_file.t
 t/pod-coverage.t
 t/pod.t
+Makefile.PL
+META.yml
