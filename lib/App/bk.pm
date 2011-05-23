@@ -38,6 +38,7 @@ my %opts = (
     'directory|d' => 0,
 );
 my %options;
+$options{debug} ||= 0;
 
 =head1 SYNOPSIS
 
@@ -88,9 +89,6 @@ sub backup_files {
         $username = '';
     }
 
-    my $sum = find_sum_binary();
-    logmsg( 2, "Using $sum" );
-
     foreach my $filename (@ARGV) {
         my ( $basename, $dirname ) = fileparse($filename);
 
@@ -130,13 +128,11 @@ sub backup_files {
         if ($last_backup) {
             logmsg( 1, "Found last backup as: $last_backup" );
 
-            my $last_backup_sum = qx/$sum $last_backup/;
-            chomp($last_backup_sum);
-            my $current_sum = qx/$sum $filename/;
-            chomp($current_sum);
+            my $last_backup_sum = get_chksum($last_backup);
+            my $current_sum     = get_chksum($filename);
 
-            logmsg( 2, "Last backup file $sum: $last_backup_sum" );
-            logmsg( 2, "Current file $sum: $current_sum" );
+            logmsg( 2, "Last backup file $options{sum}: $last_backup_sum" );
+            logmsg( 2, "Current file $options{sum}: $current_sum" );
 
             if ( $last_backup_sum eq $current_sum ) {
                 logmsg( 0, "No change since last backup of $filename" );
@@ -186,6 +182,29 @@ sub find_sum_binary {
            which('md5sum')
         || which('sum')
         || die 'Unable to locate "md5sum" or "sum"', $/;
+}
+
+=head2 $sum = get_chksum($file);
+
+Get the chksum of a file
+
+=cut
+
+sub get_chksum {
+    my ($filename) = @_;
+
+    die 'No filename provided', $/ if ( !$filename );
+
+    if ( !$options{sum} ) {
+        $options{sum} = find_sum_binary();
+        logmsg( 2, "Using $options{sum}" );
+    }
+
+    my $chksum = qx/$options{sum} $filename/;
+    chomp($chksum);
+
+    ($chksum) = $chksum =~ m/^(\w+)\s/;
+    return $chksum;
 }
 
 =head1 AUTHOR
