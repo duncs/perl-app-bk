@@ -35,7 +35,7 @@ my $builder = Module::Build->new(
         'POSIX'          => 0,
         'File::Copy'     => 0,
         'File::Which'    => 0,
-        'Test::Trap'     => 0.1,
+        'Test::Trap'     => 0,
     },
     add_to_cleanup     => ['App-bk-*'],
     create_makefile_pl => 'traditional',
