@@ -58,9 +58,9 @@ is( $trap->leaveby, 'return', 'returned correctly' );
 is( $trap->die,     undef,    'no death output' );
 is( $result,        1,        'got correct return value' );
 
-my $last_backup_file = App::bk::get_last_backup($Bin, 'file1.txt');
-note('Amending file ', $last_backup_file);
-copy('file2.txt', $last_backup_file);
+my $last_backup_file = App::bk::get_last_backup( $Bin, 'file1.txt' );
+note( 'Amending file ', $last_backup_file );
+copy( 'file2.txt', $last_backup_file );
 
 $result = trap { App::bk::backup_files(); };
 

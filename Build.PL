@@ -25,7 +25,7 @@ my $builder = Module::Build->new(
         'File::Copy'     => 0,
         'File::Which'    => 0,
     },
-    build_requires    => {
+    build_requires => {
         'FindBin'        => 0,
         'Test::More'     => 0.94,
         'File::Basename' => 0,

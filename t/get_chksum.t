@@ -21,12 +21,12 @@ is( $trap->leaveby, 'die', 'died correctly' );
 like( $trap->die, qr/^No filename provided/, 'correct death output' );
 is( $result, undef, 'got correct output' );
 
-$result = trap { App::bk::get_chksum( 'file1.txt'); };
-is( $trap->stderr, '', 'no stderr output' );
-is( $trap->stdout, '', 'no stdout output' );
-is( $trap->exit, undef, 'correct exit' );
+$result = trap { App::bk::get_chksum('file1.txt'); };
+is( $trap->stderr,  '',       'no stderr output' );
+is( $trap->stdout,  '',       'no stdout output' );
+is( $trap->exit,    undef,    'correct exit' );
 is( $trap->leaveby, 'return', 'died correctly' );
-is( $trap->die, undef,'no die message' );
+is( $trap->die,     undef,    'no die message' );
 like( $result, qr/^\w+$/, 'no binary returned' );
 
 done_testing();
