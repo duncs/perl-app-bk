@@ -2,6 +2,12 @@ use strict;
 use warnings;
 use Module::Build;
 
+use Config;
+
+if($Config{osname} =~ m/mswin/i) {
+    die 'No support for OS',$/;
+}
+
 my $builder = Module::Build->new(
     meta_merge => {
         resources => {
