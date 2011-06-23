@@ -14,22 +14,15 @@ use Carp;
 
 =head1 NAME
 
-Module backend for the 'bk' commaned.  Please see its documentation for 
-command line usage using one of the following commands:
-
-  bk -h
-  bk -H
-  bk --man
-  man bk
-  perldoc bk
+App::bk - A module for functions used by the F<bk> program.
 
 =head1 VERSION
 
-Version 0.01
+Version 0.02
 
 =cut
 
-our $VERSION = '0.01';
+our $VERSION = '0.02';
 
 my %opts = (
     'help|h|?'    => 0,
@@ -52,13 +45,7 @@ if ( $options{username} eq 'root' ) {
 
 =head1 SYNOPSIS
 
-Backend for bk command - does the actualy work.  'bk' is just a very light
-interface into this module, where the real work is done.
-
-
-    use App::bk;
-
-    my $foo = App::bk->backup_files();
+Please see the file F<bk> for more information about the F<bk> program.
 
 =head1 SUBROUTINES/METHODS
 
