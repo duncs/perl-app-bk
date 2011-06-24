@@ -1,6 +1,7 @@
 Revision history for App-bk
 
-0.02    Allow tests to be run as root user
+0.02    24th June 2011
+        Allow tests to be run as root user
         Improve documentation
         Disallow building on Windows servers
 
