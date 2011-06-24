@@ -5,7 +5,6 @@ use warnings;
 use Test::More;
 use Test::Trap;
 use FindBin qw($Bin);
-use File::Copy;
 
 my $result;
 
@@ -37,7 +36,7 @@ $result = trap { App::bk::backup_files(); };
 is( $trap->stderr, '', 'no stderr output' );
 like(
     $trap->stdout,
-    qr!Backed up file1.txt to ./file1.txt.\w+\.\d{8}\s$!,
+    qr!Backed up file1.txt to ./file1.txt.(\w+\.)?\d{8}\s$!,
     'got correct backup filename'
 );
 is( $trap->exit,    undef,    'correct exit' );
@@ -60,14 +59,16 @@ is( $result,        1,        'got correct return value' );
 
 my $last_backup_file = App::bk::get_last_backup( $Bin, 'file1.txt' );
 note( 'Amending file ', $last_backup_file );
-copy( 'file2.txt', $last_backup_file );
+open(my $fh, '>>', $last_backup_file) || bail_out("Could not open $last_backup_file: ", $!);
+print $fh ' Amended test',$/ || bail_out("Could not write to $last_backup_file: ", $!);
+close($fh) || bail_out("Could not close $last_backup_file: ", $!);
 
 $result = trap { App::bk::backup_files(); };
 
 is( $trap->stderr, '', 'no stderr output' );
 like(
     $trap->stdout,
-    qr!Backed up file1.txt to ./file1.txt.\w+\.\d{8}\.\d{6}\s$!,
+    qr!Backed up file1.txt to ./file1.txt.(\w+\.)?\d{8}\.\d{6}\s$!,
     'got correct backup filename'
 );
 is( $trap->exit,    undef,    'correct exit' );
