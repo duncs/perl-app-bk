@@ -88,4 +88,6 @@ is( $trap->leaveby, 'return', 'returned correctly' );
 is( $trap->die,     undef,    'no death output' );
 is( $result,        1,        'got correct return value' );
 
+unlink <file*.txt.*>;
+
 done_testing();
