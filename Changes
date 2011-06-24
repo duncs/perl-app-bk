@@ -1,6 +1,6 @@
 Revision history for App-bk
 
-0.02    ?????
+0.02    Allow tests to be run as root user
         Improve documentation
         Disallow building on Windows servers
 
