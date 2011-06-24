@@ -82,7 +82,7 @@ sub backup_files {
     foreach my $filename (@ARGV) {
         my ( $basename, $dirname ) = fileparse($filename);
 
-        # do this as we might mvoe this into archive or save dir in future
+        # do this via savedir as we might move this somewhere else dir in future
         my $savedir = $dirname;
 
         logmsg( 2, "dirname=$dirname" );
