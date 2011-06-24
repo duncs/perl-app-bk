@@ -43,7 +43,7 @@ my $builder = Module::Build->new(
         'File::Which'    => 0,
         'Test::Trap'     => 0,
     },
-    add_to_cleanup     => ['App-bk-*'],
+    add_to_cleanup     => ['App-bk-*', 't/file[12].txt.*'],
     create_makefile_pl => 'traditional',
     script_files       => 'bin',
 );
