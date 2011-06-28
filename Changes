@@ -1,5 +1,8 @@
 Revision history for App-bk
 
+0.03    28th June 2011
+        Correct use of BAIL_OUT in tests
+
 0.02    24th June 2011
         Allow tests to be run as root user
         Improve documentation

@@ -12,7 +12,7 @@ my $result;
 
 use_ok("App::bk");
 
-chdir($Bin) || bail_out( 'Failed to cd into ', $Bin );
+chdir($Bin) || BAIL_OUT( 'Failed to cd into '. $Bin );
 unlink <file1.txt.*>;
 
 $result = trap { App::bk::get_last_backup(); };

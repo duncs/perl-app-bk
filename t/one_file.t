@@ -10,7 +10,7 @@ my $result;
 
 use_ok("App::bk");
 
-chdir($Bin) || bail_out( 'Failed to cd into ', $Bin );
+chdir($Bin) || BAIL_OUT( 'Failed to cd into '. $Bin );
 
 unlink <file1.txt.*>;
 
@@ -59,9 +59,9 @@ is( $result,        1,        'got correct return value' );
 
 my $last_backup_file = App::bk::get_last_backup( $Bin, 'file1.txt' );
 note( 'Amending file ', $last_backup_file );
-open(my $fh, '>>', $last_backup_file) || bail_out("Could not open $last_backup_file: ", $!);
-print $fh ' Amended test',$/ || bail_out("Could not write to $last_backup_file: ", $!);
-close($fh) || bail_out("Could not close $last_backup_file: ", $!);
+open(my $fh, '>>', $last_backup_file) || BAIL_OUT("Could not open $last_backup_file: ". $!);
+print $fh ' Amended test',$/ || BAIL_OUT("Could not write to $last_backup_file: ". $!);
+close($fh) || BAIL_OUT("Could not close $last_backup_file: ". $!);
 
 $result = trap { App::bk::backup_files(); };
 

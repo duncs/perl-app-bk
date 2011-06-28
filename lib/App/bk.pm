@@ -18,11 +18,11 @@ App::bk - A module for functions used by the F<bk> program.
 
 =head1 VERSION
 
-Version 0.02
+Version 0.04
 
 =cut
 
-our $VERSION = '0.02';
+our $VERSION = '0.03';
 
 my %opts = (
     'help|h|?'    => 0,
