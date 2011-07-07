@@ -63,12 +63,14 @@ is( $result,        1,        'got correct return value' );
 
 my $file1_last_backup_file = App::bk::get_last_backup( $Bin, 'file1.txt' );
 note( 'Amending file ', $file1_last_backup_file );
+chmod 0644, $file1_last_backup_file || BAIL_OUT("Could not reset perms on $file1_last_backup_file:: ". $!);
 open(my $fh, '>>', $file1_last_backup_file) || BAIL_OUT("Could not open $file1_last_backup_file: ". $!);
 print $fh ' Amended test',$/ || BAIL_OUT("Could not write to $file1_last_backup_file: ", $!);
 close($fh) || BAIL_OUT("Could not close $file1_last_backup_file: ". $!);
 
 my $file2_last_backup_file = App::bk::get_last_backup( $Bin, 'file2.txt' );
 note( 'Amending file ', $file2_last_backup_file );
+chmod 0644, $file2_last_backup_file || BAIL_OUT("Could not reset perms on $file2_last_backup_file:: ". $!);
 open($fh, '>>', $file2_last_backup_file) || BAIL_OUT("Could not open $file2_last_backup_file: ". $!);
 print $fh ' Amended test',$/ || BAIL_OUT("Could not write to $file2_last_backup_file: ". $!);
 close($fh) || BAIL_OUT("Could not close $file2_last_backup_file: ". $!);

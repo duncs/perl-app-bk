@@ -59,6 +59,8 @@ is( $result,        1,        'got correct return value' );
 
 my $last_backup_file = App::bk::get_last_backup( $Bin, 'file1.txt' );
 note( 'Amending file ', $last_backup_file );
+# have to reset perms on some systems as the backed up file might be RO
+chmod 0644, $last_backup_file || BAIL_OUT("Could not reset perms on $last_backup_file:: ". $!);
 open(my $fh, '>>', $last_backup_file) || BAIL_OUT("Could not open $last_backup_file: ". $!);
 print $fh ' Amended test',$/ || BAIL_OUT("Could not write to $last_backup_file: ". $!);
 close($fh) || BAIL_OUT("Could not close $last_backup_file: ". $!);

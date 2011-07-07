@@ -1,5 +1,8 @@
 Revision history for App-bk
 
+0.04    7th July 2011
+        Change tests to ensure backed up file is writable before amending
+
 0.03    28th June 2011
         Correct use of BAIL_OUT in tests
 
