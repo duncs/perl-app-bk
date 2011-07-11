@@ -4,7 +4,7 @@ use Module::Build;
 
 use Config;
 
-if($Config{osname} =~ m/mswin/i) {
+if($Config{osname} =~ m/win/i) {
     die 'No support for OS',$/;
 }
 

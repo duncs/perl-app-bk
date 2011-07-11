@@ -36,8 +36,8 @@ $result = trap { App::bk::backup_files(); };
 is( $trap->stderr, '', 'no stderr output' );
 like(
     $trap->stdout,
-    qr!Backed up file1.txt to ./file1.txt.(\w+\.)?\d{8}
-Backed up file2.txt to ./file2.txt.(\w+\.)?\d{8}
+    qr!Backed up file1.txt to ./file1.txt.([\w-]+\.)?\d{8}
+Backed up file2.txt to ./file2.txt.([\w-]+\.)?\d{8}
 $!,
     'got correct backup filename'
 );
@@ -80,8 +80,8 @@ $result = trap { App::bk::backup_files(); };
 is( $trap->stderr, '', 'no stderr output' );
 like(
     $trap->stdout,
-    qr!Backed up file1.txt to ./file1.txt.(\w+\.)?\d{8}\.\d{6}
-Backed up file2.txt to ./file2.txt.(\w+\.)?\d{8}\.\d{6}
+    qr!Backed up file1.txt to ./file1.txt.([\w-]+\.)?\d{8}\.\d{6}
+Backed up file2.txt to ./file2.txt.([\w-]+\.)?\d{8}\.\d{6}
 $!,
     'got correct backup filename'
 );
