@@ -11,7 +11,7 @@ if($Config{osname} =~ m/win/i) {
 my $builder = Module::Build->new(
     meta_merge => {
         resources => {
-            repository => [ 'http://github.com/duncs/perl-app-bk', ],
+            repository => 'http://github.com/duncs/perl-app-bk',
             bugtracker => 'https://github.com/duncs/perl-app-bk/issues',
             homepage   => 'https://github.com/duncs/perl-app-bk',
         },
