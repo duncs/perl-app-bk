@@ -29,7 +29,6 @@ my %opts = (
     'man'         => 0,
     'version|V'   => 0,
     'debug:+'     => 0,
-    'directory|d' => 0,
 );
 my %options;
 
