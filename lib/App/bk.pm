@@ -30,6 +30,7 @@ my %opts = (
     'version|V' => 0,
     'debug:+'   => 0,
     'diff|d'    => 0,
+    'edit|e'    => 0,
 );
 my %options;
 
@@ -142,6 +143,13 @@ sub backup_files {
         }
 
         logmsg( 0, "Backed up $filename to $savefilename" );
+    }
+
+    if($options{edit}) {
+        my $editor= $ENV{EDITOR} || $ENV{VISUAL} || die 'Neither "EDITOR" nor "VISUAL" environment variables set',$/;
+
+        print "Running: $editor @ARGV",$/;
+        exec("$editor @ARGV");
     }
 
     return 1;
