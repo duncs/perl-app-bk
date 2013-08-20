@@ -53,6 +53,15 @@ a level explicitly to a maximum of level 8)
 
 Show version information
 
+=item --diff, -d
+
+Show the differences between the file and its last backup (using 'diff -u')
+
+=item --edit, -e
+
+After the file has been backed up, edit them (using EDITOR or VISUAL 
+environment variables)
+
 =back
 
 =head1 ARGUMENTS
