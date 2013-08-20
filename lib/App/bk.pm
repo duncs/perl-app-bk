@@ -22,13 +22,14 @@ Version 0.05
 
 =cut
 
-our $VERSION = '0.05';
+our $VERSION = '0.06';
 
 my %opts = (
-    'help|h|?'    => 0,
-    'man'         => 0,
-    'version|V'   => 0,
-    'debug:+'     => 0,
+    'help|h|?'  => 0,
+    'man'       => 0,
+    'version|V' => 0,
+    'debug:+'   => 0,
+    'diff|d'    => 0,
 );
 my %options;
 
@@ -81,7 +82,7 @@ sub backup_files {
     foreach my $filename (@ARGV) {
         my ( $basename, $dirname ) = fileparse($filename);
 
-        # do this via savedir as we might move this somewhere else dir in future
+      # do this via savedir as we might move this somewhere else dir in future
         my $savedir = $dirname;
 
         logmsg( 2, "dirname=$dirname" );
@@ -101,6 +102,11 @@ sub backup_files {
         my $last_backup = get_last_backup( $savedir, $basename );
         if ($last_backup) {
             logmsg( 1, "Found last backup as: $last_backup" );
+
+            if ( $options{diff} ) {
+                print get_diff( $last_backup, $filename );
+                next;
+            }
 
             my $last_backup_sum = get_chksum($last_backup);
             my $current_sum     = get_chksum($filename);
@@ -180,6 +186,33 @@ sub get_chksum {
 
     ($chksum) = $chksum =~ m/^(\w+)\s/;
     return $chksum;
+}
+
+=head2 $binary = find_diff_binary();
+
+Locate a binary to use for diff
+
+=cut
+
+sub find_diff_binary {
+    return which('diff')
+        || die 'Unable to locate "diff"', $/;
+}
+
+=head2 $differences = get_diff ($old, $new);
+
+Get the differences between two files
+
+=cut
+
+sub get_diff {
+    my ( $old, $new ) = @_;
+
+    my $diff_binary = find_diff_binary();
+    my $differences = qx/$diff_binary -u $old $new/;
+    return $differences
+        ? $differences
+        : "No differences between '$old' and '$new'" . $/;
 }
 
 =head2 $filename = get_last_backup($file);
