@@ -100,13 +100,19 @@ sub backup_files {
 
         # compare the last file found with the current file
         my $last_backup = get_last_backup( $savedir, $basename );
+
+        if ( $options{diff} ) {
+            if ( !$last_backup ) {
+                print "'$filename' not previously backed up.", $/;
+            }
+            else {
+                print get_diff( $last_backup, $filename );
+            }
+            next;
+        }
+
         if ($last_backup) {
             logmsg( 1, "Found last backup as: $last_backup" );
-
-            if ( $options{diff} ) {
-                print get_diff( $last_backup, $filename );
-                next;
-            }
 
             my $last_backup_sum = get_chksum($last_backup);
             my $current_sum     = get_chksum($filename);
