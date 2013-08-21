@@ -145,10 +145,14 @@ sub backup_files {
         logmsg( 0, "Backed up $filename to $savefilename" );
     }
 
-    if($options{edit}) {
-        my $editor= $ENV{EDITOR} || $ENV{VISUAL} || die 'Neither "EDITOR" nor "VISUAL" environment variables set',$/;
+    if ( $options{edit} ) {
+        my $editor 
+            = $ENV{EDITOR}
+            || $ENV{VISUAL}
+            || die 'Neither "EDITOR" nor "VISUAL" environment variables set',
+            $/;
 
-        print "Running: $editor @ARGV",$/;
+        print "Running: $editor @ARGV", $/;
         exec("$editor @ARGV");
     }
 
