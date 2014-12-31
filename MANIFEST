@@ -21,3 +21,4 @@ t/no_files.t
 t/one_file.t
 t/pod-coverage.t
 t/pod.t
+META.json
