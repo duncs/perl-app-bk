@@ -3,6 +3,7 @@ Revision history for App-bk
 0.06    19th August 2013
         Add in '-d' option to show file differences between current 
             and previous version
+        Amend module prereq's
 
 0.05    11th July 2011
         Fixes to tests for cpantesters.org
