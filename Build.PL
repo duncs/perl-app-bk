@@ -39,7 +39,7 @@ my $builder = Module::Build->new(
     },
     build_requires => {
         'CPAN::Meta::Spec' => 2.133380,
-        'Module::Build'  => 0.4003,
+        'Module::Build'  => 0.42,
         'FindBin'        => 0,
         'Test::More'     => 0.94,
         'File::Basename' => 0,
@@ -51,6 +51,7 @@ my $builder = Module::Build->new(
         'File::Which'    => 0,
         'Test::Trap'     => 0,
     },
+    configure_requires => { 'Module::Build' => 0.42 },
     add_to_cleanup     => ['App-bk-*', 't/file[12].txt.*'],
     create_makefile_pl => 'traditional',
     script_files       => 'bin',
