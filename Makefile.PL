@@ -20,7 +20,7 @@ WriteMakefile
                    'File::Which' => 0,
                    'Test::More' => '0.94',
                    'POSIX' => 0,
-                   'Module::Build' => '0.4003',
+                   'Module::Build' => '0.42',
                    'File::Basename' => 0
                  }
 )
